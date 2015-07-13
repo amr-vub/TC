@@ -7,22 +7,22 @@
 #include <stdlib.h> /* for atoi() */
 
 #include "micro.tab.h" /* token type definitions from .y file */
-#include "symbol.h" /* symbol table management */
+#include "symtab.h" /* symbol table management */
 
 extern int lineno;  /* defined in micro.y */
 
 void
 lex_init() {
   /* Initialize data structures etc. for scanner */
-  symbol_insert("int",INT); /*Insert keywords in symbol table */
-  symbol_insert("char",CHAR);
-  symbol_insert("return",RETURN);  
-  symbol_insert("length",LENGTH);
-  symbol_insert("while",WHILE);
-  symbol_insert("if",IF);
-  symbol_insert("else",ELSE);
-  symbol_insert("read",READ); 
-  symbol_insert("write",WRITE);
+  symtab_insert("int",INT); /*Insert keywords in symbol table */
+  symtab_insert("char",CHAR);
+  symtab_insert("return",RETURN);  
+  symtab_insert("length",LENGTH);
+  symtab_insert("while",WHILE);
+  symtab_insert("if",IF);
+  symtab_insert("else",ELSE);
+  symtab_insert("read",READ); 
+  symtab_insert("write",WRITE);
 }
 
 /*
@@ -55,7 +55,7 @@ alphanum  [A-Za-z0-9_]
                         yylval.idx = symbol_find(yytext);
 
                         if (yylval.idx<0) { /* new symbol: insert it */
-                          yylval.idx =symbol_insert(yytext, NAME);
+                          yylval.idx = symtab_insert(yytext, NAME);
                           return NAME;
                         }
                         else

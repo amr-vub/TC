@@ -1,7 +1,7 @@
 %{
-/*	tiny.y(
+/*	minic.y(1.9)	17:46:21	97/12/10
 *
-*	Tiny language parser 
+*	Parser demo of simple symbol table management and type checking.
 */
 #include	<stdio.h>	/* for (f)printf() */
 #include	<stdlib.h>	/* for exit() */
@@ -50,11 +50,11 @@ exit(1);
 %nonassoc	LOW  /* dummy token to suggest shift on ELSE */
 %nonassoc	ELSE /* higher than LOW */
 
-%nonassoc	EQUAL NEQUAL GREATER LESS
+%nonassoc	EQUAL
 %left		PLUS	MINUS
 %left		TIMES	DIVIDE
-%left		UMINUS	NOT LENGTH /* dummy token to use as precedence marker */
-%left		LBRACK	/* C compatible precedence rules */
+%left		UMINUS	NOT /* dummy token to use as precedence marker */
+%left		DOT	LBRACK	/* C compatible precedence rules */
 
 %%
 program		: declarations
@@ -106,7 +106,7 @@ var_declarations: var_declaration var_declarations
 var_declaration	: type NAME SEMICOLON	{ symtab_insert(scope,$2,$1); }
 		;
 
-type	: INT			{ $$ = types_simple(int_t); }
+type		: INT			{ $$ = types_simple(int_t); }
 		| CHAR			{ $$ = types_simple(char_t); }
 		| type TIMES		{ $$ = types_array($1); }
 		| type LBRACK exp RBRACK /* array type TODO */
