@@ -68,9 +68,9 @@
 /* Line 268 of yacc.c  */
 #line 1 "tiny.y"
 
-/*	minic.y(1.9)	17:46:21	97/12/10
+/*	tiny.y(
 *
-*	Parser demo of simple symbol table management and type checking.
+*	Tiny language parser 
 */
 #include	<stdio.h>	/* for (f)printf() */
 #include	<stdlib.h>	/* for exit() */
