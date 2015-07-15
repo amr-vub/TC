@@ -1,39 +1,59 @@
-#	$Id: Makefile,v 1.8 2008/07/10 16:44:14 dvermeir Exp $
+#	%M%(%I%)	%U%	%E%
 #
 CFLAGS=		-Wall -g
 CC=		gcc
 #
-SOURCE=		microc.sh micro.y lex.l symbol.c symbol.h Makefile *.mi
+HH_FILES=	util.h names.h symtab.h types.h check.h
+CC_FILES=	util.c names.c symtab.c types.c check.c
+SOURCE=		Makefile $(CC_FILES) $(HH_FILES) tiny.y lex.l mct.sh
 #
-all:		micro microc demo
-micro:		micro.tab.o lex.yy.o symbol.o
+#
+all:		tiny mct
+tiny:		tiny.tab.o lex.yy.o $(CC_FILES:%.c=%.o)
 		gcc $(CFLAGS) -o $@ $^
 
-lex.yy.c:	lex.l micro.tab.h
+lex.yy.c:	lex.l tiny.tab.h
 		flex lex.l
+#
+include		make_dependencies
 #
 #	Bison options:
 #
-#	-v	Generate micro.output showing states of LALR parser
-#	-d	Generate micro.tab.h containing token type definitions
+#	-v	Generate tiny.output showing states of LALR parser
+#	-d	Generate tiny.tab.h containing token type definitions
 #
-micro.tab.h\
-micro.tab.c:	micro.y
+tiny.tab.h\
+tiny.tab.c:	tiny.y
 		bison -v -d $^
-##
-demo:		microc micro demo.mi
-		./microc demo.mi
 #
-CFILES=	$(filter %.c, $(SOURCE)) micro.tab.c lex.yy.c
-HFILES=	$(filter %.h, $(SOURCE)) micro.tab.h
-include make.depend
-make.depend: 	$(CFILES) $(HFILES)
-		gcc -M $(CFILES) >$@
-
 clean:
-		rm -f lex.yy.c micro.tab.[hc] *.o microc micro *.jasm *.class micro.output t?.s t?
+		rm -f lex.yy.c tiny.tab.[hc] *.o mct tiny *.jasm *.class tiny.output
 #
 tar:
-		tar cvf micro.tar $(SOURCE)
+		tar cvf tiny.tar $(SOURCE)
+source:
+		@echo $(SOURCE)
+#
+####### creating dependencies
+#
+make_dependencies: lex.yy.c tiny.tab.c $(CC_FILES)
+		$(CC) -M $(CC_FILES) lex.yy.c tiny.tab.c >make_dependencies
+#
+####### sccs rules
+#
+delta:		
+		@echo "Comment: \c"; read inp; \
+		for f in $(SOURCE); do\
+			[ -f SCCS/p.$$f ] && \
+			{ echo "#$$f:"; sccs delget -y"\"$$inp\"" $$f; } done;\
+			true
+edit:
+		@for f in $(SOURCE); do\
+			[ ! -f SCCS/p.$$f ] && \
+			{ echo "#$$f:"; sccs edit $$f; } done; true
+create:
+		@for f in $(SOURCE); do\
+			[ ! -f SCCS/s.$$f ] && \
+			{ echo "#$$f:"; sccs create $$f; } done; rm -f ,*; true
 
 

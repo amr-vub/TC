@@ -1,28 +1,22 @@
 %{
 /* $Id: lex.l,v 1.1 2008/07/09 13:06:42 dvermeir Exp $
 * 
-* Lexical analyzer for the toy language ``Micro''
+* Lexical analyzer for the toy language ``TINY''
 */
 #include <string.h> /* for strcmp, strdup & friends */
 #include <stdlib.h> /* for atoi() */
 
-#include "micro.tab.h" /* token type definitions from .y file */
-#include "symtab.h" /* symbol table management */
+#include	"symtab.h"	/* symbol table management */
+#include	"types.h"	/* symbol table management */
+#include	"tiny.tab.h"	/* token type definitions from .y file */
+#include	"names.h"	/* string pool management */
 
-extern int lineno;  /* defined in micro.y */
-
+extern int lineno;  /* defined in tiny.y */
+extern SYM_TAB *scope;		/* current symbol table */ 
 void
 lex_init() {
   /* Initialize data structures etc. for scanner */
-  symtab_insert("int",INT); /*Insert keywords in symbol table */
-  symtab_insert("char",CHAR);
-  symtab_insert("return",RETURN);  
-  symtab_insert("length",LENGTH);
-  symtab_insert("while",WHILE);
-  symtab_insert("if",IF);
-  symtab_insert("else",ELSE);
-  symtab_insert("read",READ); 
-  symtab_insert("write",WRITE);
+ scope	= symtab_open(0);	/* open topmost scope */
 }
 
 /*
@@ -52,14 +46,8 @@ alphanum  [A-Za-z0-9_]
 "write"         		{return WRITE;}
 
 {alpha}{alphanum}*      {
-                        yylval.idx = symbol_find(yytext);
-
-                        if (yylval.idx<0) { /* new symbol: insert it */
-                          yylval.idx = symtab_insert(yytext, NAME);
+                          yylval.name = names_find_or_add(yytext);
                           return NAME;
-                        }
-                        else
-                          return symbol_type(yylval.idx);
                         }
 
 {digit}+                {

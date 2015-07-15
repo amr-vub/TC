@@ -7,11 +7,7 @@
 */
 #include	"symtab.h"
 
-typedef enum { int_t, float_t, fun_t, record_t, array_t } T_CONS; /* type constructors */
-
-typedef struct {
-	SYM_LIST		*fields;
-	} T_RECORD;
+typedef enum { int_t, char_t, fun_t, array_t } T_CONS; /* type constructors */
 
 typedef struct {
 	struct type_info	*target;
@@ -28,7 +24,6 @@ typedef struct type_info {
 	union {
 		T_FUN		fun;
 		T_ARRAY		array;
-		T_RECORD	record;
 		} info;
 	} T_INFO;
 
@@ -39,7 +34,6 @@ typedef struct types_list {
 
 T_INFO*	types_simple(T_CONS c);
 T_INFO*	types_fun(T_INFO* target,T_LIST *source);
-T_INFO*	types_record(SYM_LIST *fields);
 T_INFO*	types_array(T_INFO *base);
 T_LIST*	types_list_insert(T_LIST*,T_INFO*);
 int	types_list_equal(T_LIST*,T_LIST*);

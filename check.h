@@ -9,7 +9,6 @@
 #include	"symtab.h"
 
 void		check_assignment(T_INFO*,T_INFO*);
-T_INFO*		check_record_access(T_INFO* t,char* field);
 T_INFO*		check_array_access(T_INFO* ta,T_INFO* ti);
 T_INFO*		check_arith_op(int token,T_INFO* t1,T_INFO* t2);
 T_INFO*		check_relop(int token,T_INFO* t1,T_INFO* t2);

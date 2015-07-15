@@ -22,7 +22,7 @@ if (t1->cons==t2->cons)
 	switch (t1->cons)
 		{
 		case int_t:
-		case float_t:
+		case char_t:
 			return 1;
 		case fun_t:
 			if (!types_equal(t1->info.fun.target, t2->info.fun.target))
@@ -31,8 +31,6 @@ if (t1->cons==t2->cons)
 				return types_list_equal(t1->info.fun.source, t2->info.fun.source);
 		case array_t:
 			return types_equal(t1->info.array.base, t2->info.array.base);
-		case record_t:
-			return symtab_list_equal(t1->info.record.fields, t2->info.record.fields);
 		default:	assert(0);
 		}
 return 0;
@@ -126,24 +124,6 @@ return pt;
 }
 
 T_INFO*
-types_record(SYM_LIST *fields)
-{
-T_INFO	t,*pt;
-
-t.cons			= record_t;
-t.info.record.fields	= fields;
-
-if (!(pt=types_find(&t)))
-	{
-	pt = types_new(record_t);
-	pt->info.record.fields	= fields;
-	}
-else
-	symtab_list_release(fields);
-return pt;
-}
-
-T_INFO*
 types_array(T_INFO *base)
 {
 T_INFO	t,*pt;
@@ -177,19 +157,14 @@ else
 		case int_t:
 			fprintf(f,"int");
 			break;
-		case float_t:
-			fprintf(f,"float");
+		case char_t:
+			fprintf(f,"char");
 			break;
 		case fun_t:
 			types_print(f,t->info.fun.target);
 			fprintf(f,"(");
 			types_list_print(f,t->info.fun.source,",");
 			fprintf(f,")");
-			break;
-		case record_t:
-			fprintf(f,"struct {");
-			symtab_list_print(f,t->info.record.fields,";");
-			fprintf(f,"}");
 			break;
 		case array_t:
 			types_print(f,t->info.array.base);

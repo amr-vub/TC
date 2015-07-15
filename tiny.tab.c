@@ -83,7 +83,7 @@ int		lineno	= 1;	/* number of current source line */
 extern int	yylex();	/* lexical analyzer generated from lex.l */
 extern char	*yytext;	/* last token, defined in lex.l  */
 SYM_TAB 	*scope;		/* current symbol table, initialized in lex.l */
-char		*base;		/* basename of command line argument */
+/*char		*base;		 basename of command line argument */
 
 void
 yyerror(char *s)
@@ -1610,7 +1610,7 @@ yyreduce:
 
 /* Line 1806 of yacc.c  */
 #line 106 "tiny.y"
-    { symtab_insert(scope,(yyvsp[(2) - (3)].name),(yyvsp[(1) - (3)].type)); }
+    { symtab_insert(scope,(yyvsp[(2) - (3)].name),(yyvsp[(1) - (3)].type));}
     break;
 
   case 20:
@@ -2056,11 +2056,12 @@ yyreturn:
 int
 main(int argc,char *argv[])
 {
+/*
 if (argc!=2) {
 	fprintf(stderr,"Usage: %s base_file_name",argv[0]);
 	exit(1);
 	}
-base = argv[1];
+base = argv[1];*/
 return yyparse();
 }
 

@@ -5,9 +5,9 @@
 #include	<stdlib.h>		/* for exit() */
 #include	"check.h"
 
-#include	"minic.tab.h"		/* for tokens */
+#include	"tiny.tab.h"		/* for tokens */
 
-extern int      lineno;			/* defined in minic.y */
+extern int      lineno;			/* defined in tiny.y */
 
 static void
 error(char *s1,char *s2,T_INFO* t1,char* s3,char* s4,T_INFO* t2)
@@ -31,19 +31,6 @@ if (tlexp!=texp)
 }
 
 T_INFO*
-check_record_access(T_INFO* t,char* field)
-{
-SYM_INFO	*i;
-
-if (t->cons!=record_t)
-	error("not a record: ",0,t," for field ",field,0);
-if ((i=symtab_list_find(t->info.record.fields,field)))
-	return i->type;
-error("record type ",0,t," has no field ",field,0);
-return 0;
-}
-
-T_INFO*
 check_array_access(T_INFO* ta,T_INFO* ti)
 {
 if (ta->cons!=array_t)
@@ -58,7 +45,7 @@ check_arith_op(int token,T_INFO* t1,T_INFO* t2)
 {
 if (t1!=t2)
 	error("type ",0,t1," does not match ",0,t2);
-if ((t1->cons!=int_t)&&(t2->cons!=float_t))
+if ((t1->cons!=int_t)||(t2->cons!=int_t)) // TODO
 	error("type ",0,t1," is not numeric",0,0);
 return t1;
 }

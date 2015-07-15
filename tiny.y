@@ -14,7 +14,7 @@ int		lineno	= 1;	/* number of current source line */
 extern int	yylex();	/* lexical analyzer generated from lex.l */
 extern char	*yytext;	/* last token, defined in lex.l  */
 SYM_TAB 	*scope;		/* current symbol table, initialized in lex.l */
-char		*base;		/* basename of command line argument */
+/*char		*base;		 basename of command line argument */
 
 void
 yyerror(char *s)
@@ -103,7 +103,7 @@ var_declarations: var_declaration var_declarations
 		|
 		;
 
-var_declaration	: type NAME SEMICOLON	{ symtab_insert(scope,$2,$1); }
+var_declaration	: type NAME SEMICOLON	{ symtab_insert(scope,$2,$1);}
 		;
 
 type	: INT			{ $$ = types_simple(int_t); }
@@ -123,7 +123,7 @@ statement	: IF LPAR exp RPAR statement 		%prec LOW
 		| lexp ASSIGN exp	{ check_assignment($1,$3); }
 		| RETURN exp /* statements always in scope with function */
 			{ check_assignment(scope->function->type->info.fun.target,$2); }
-		| NAME LPAR pars RPAR		// function call
+		| NAME LPAR pars RPAR		// function call TODO:  check name in the scope??
 		| block
 		| WRITE exp
 		| READ lexp
@@ -164,10 +164,11 @@ var		: NAME 			{ $$ = check_symbol(scope,$1); }
 int
 main(int argc,char *argv[])
 {
+/*
 if (argc!=2) {
 	fprintf(stderr,"Usage: %s base_file_name",argv[0]);
 	exit(1);
 	}
-base = argv[1];
+base = argv[1];*/
 return yyparse();
 }
