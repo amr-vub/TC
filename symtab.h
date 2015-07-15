@@ -1,6 +1,6 @@
 #ifndef	SYMBOL_H
 #define	SYMBOL_H
-/*	symtab.h(1.5)	10:07:41	97/12/10
+/*	symtab.h
 *	
 *	Symbol table management
 */

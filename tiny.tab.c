@@ -1673,7 +1673,7 @@ yyreduce:
 
 /* Line 1806 of yacc.c  */
 #line 136 "tiny.y"
-    { /* TODO */}
+    { (yyval.type) = types_simple(char_t);}
     break;
 
   case 38:

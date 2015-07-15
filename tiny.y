@@ -133,7 +133,7 @@ lexp	: var			{ $$ = $1->type; }
 		| lexp LBRACK exp RBRACK{ $$ = check_array_access($1,$3); }	
 		;
 
-exp		: QCHAR { /* TODO */}
+exp		: QCHAR { $$ = types_simple(char_t);}
 		| LENGTH lexp { /* TODO */}
 		| exp LBRACK exp RBRACK	{ $$ = check_array_access($1,$3); }
 		| exp PLUS exp		{ $$ = check_arith_op(PLUS,$1,$3); }
