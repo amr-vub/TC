@@ -5,15 +5,44 @@
 #include 	"util.h"
 #include    <ctype.h>
 #include	<string.h>
+#include    "trace.h"
 
 static INST_LIST *inst_memory=0;
 static char countTemp[2] = "0"; /* keeps track of last used temp var number */
 static char temp[2] = "t";
 
-/* create quadruple representing instruction */
-void gen3ai(short op_code,SYM_ENTRY* arg1, SYM_ENTRY* arg2, SYM_ENTRY* result)
+static void printarg(SYM_ENTRY* arg)
 {
-	//printf("IN gen3ai\n");
+	if(arg->literal)
+		switch(arg->syminf->type->cons)
+		{
+		case int_t:
+			printf("%d ", arg->syminf->lit_int_val);
+			break;
+		case char_t:
+			printf("%c ", arg->syminf->lit_ch_val);
+			break;
+		}
+	else
+	{
+		printf("%s ", arg->syminf->name);
+	}
+}
+
+static void print3ai(char* op, SYM_ENTRY* arg1, SYM_ENTRY* arg2, SYM_ENTRY* result)
+{
+	printf("%s = ", result->syminf->name); /* e.g. t0 =  */
+	if(arg1)
+		printarg(arg1);
+	printf("%s ",op);
+	printarg(arg2);
+	printf("\n");
+}
+
+/* create quadruple representing instruction */
+void gen3ai(OPCODE op_code,SYM_ENTRY* arg1, SYM_ENTRY* arg2, SYM_ENTRY* result)
+{
+	DEBUG("Function: %s --- File: %s \n ", __func__, __FILE__);
 	// allocate memmory for this instruction
 	INSTRUCTION* inst = fmalloc(sizeof(INSTRUCTION));
 	// populate the instruction
@@ -23,13 +52,24 @@ void gen3ai(short op_code,SYM_ENTRY* arg1, SYM_ENTRY* arg2, SYM_ENTRY* result)
 	inst->result = result;
 	// Then put it in the instruction memory
 	instruction_memory_insert(inst);
-	//printf("%s = %s %d %s \n", result->syminf->name,arg1->syminf->name, "+" ,arg2->syminf->name);
-	printf("result: %s \n", result->syminf->name);
+	switch(op_code)
+	{
+	case A2PLUS:
+		 A2MINUS:
+		 A2TIMES:
+		 A2DIVIDE:
+		 print3ai("+", arg1,arg2,result);
+		break;
+	case A0:
+		print3ai(" ", arg1,arg2,result);
+		break;
+	}
 }
 
 /* Handles the generation of temp vars */
 SYM_ENTRY* newtemp(T_INFO *i)
 {
+	DEBUG("Function: %s --- File: %s \n ", __func__, __FILE__);
 	SYM_ENTRY *temp_entry = fmalloc(sizeof(SYM_ENTRY));
 	temp_entry->literal = 0; /* not a literal */
 	strcpy(temp,"t");
@@ -42,7 +82,7 @@ SYM_ENTRY* newtemp(T_INFO *i)
 }
 
 /* Insert an instruction in the instruction memory*/
-void instruction_memory_insert(INSTRUCTION *inst)
+static void instruction_memory_insert(INSTRUCTION *inst)
 {
 	/* First time to insert an instruction */
 	if(!inst_memory)

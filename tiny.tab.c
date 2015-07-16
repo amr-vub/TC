@@ -1585,7 +1585,7 @@ yyreduce:
 /* Line 1806 of yacc.c  */
 #line 126 "tiny.y"
     { check_assignment((yyvsp[(1) - (3)].sysentry)->syminf->type,(yyvsp[(3) - (3)].sysentry)->syminf->type); 									
-								  gen3ai(A0, (yyvsp[(3) - (3)].sysentry), 0, (yyvsp[(1) - (3)].sysentry));}
+								  gen3ai(A0, NULL,(yyvsp[(3) - (3)].sysentry), (yyvsp[(1) - (3)].sysentry));}
     break;
 
   case 27:
@@ -1661,7 +1661,7 @@ yyreduce:
 #line 152 "tiny.y"
     { check_arith_op(UMINUS,(yyvsp[(2) - (2)].sysentry)->syminf->type,0);
 					  (yyval.sysentry) = newtemp((yyvsp[(2) - (2)].sysentry)->syminf->type);
-					  gen3ai(A1MINUS, (yyvsp[(2) - (2)].sysentry), NULL, (yyval.sysentry));}
+					  gen3ai(A1MINUS, NULL, (yyvsp[(2) - (2)].sysentry), (yyval.sysentry));}
     break;
 
   case 36:

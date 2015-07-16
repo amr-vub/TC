@@ -124,7 +124,7 @@ statements	: statement SEMICOLON statements
 		;
 
 statement	: lexp ASSIGN exp	{ check_assignment($1->syminf->type,$3->syminf->type); 									
-								  gen3ai(A0, $3, 0, $1);}
+								  gen3ai(A0, NULL,$3, $1);}
 		;
 
 lexp	: var			{ $$ = $1;}
@@ -151,7 +151,7 @@ exp		: QCHAR { $$ = symtab_insert_literal(scope, $1, types_simple(char_t));
 		| MINUS exp 	%prec UMINUS /* this will force a reduce */
 					{ check_arith_op(UMINUS,$2->syminf->type,0);
 					  $$ = newtemp($2->syminf->type);
-					  gen3ai(A1MINUS, $2, NULL, $$);}		
+					  gen3ai(A1MINUS, NULL, $2, $$);}		
 		| var			{ $$ = $1; }
 		| NUMBER 		{ $$ = symtab_insert_literal(scope, $1, types_simple(int_t));						  
 						  $$->syminf->type = types_simple(int_t); 
