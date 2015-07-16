@@ -905,12 +905,12 @@ return RBRACE;
 case 19:
 YY_RULE_SETUP
 #line 65 "lex.l"
-return RBRACK;
+return LBRACK;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 66 "lex.l"
-return LBRACK;
+return RBRACK;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP

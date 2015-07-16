@@ -79,19 +79,21 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 29 "tiny.y"
+#line 30 "tiny.y"
 
 	char*		name;
 	int		value;
+	char 	ch;
 	T_LIST*		tlist;
 	T_INFO*		type;
 	SYM_INFO*	sym;
+	SYM_ENTRY* sysentry;
 	SYM_LIST*	slist;
 	
 
 
 /* Line 2068 of yacc.c  */
-#line 95 "tiny.tab.h"
+#line 97 "tiny.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

@@ -3,8 +3,8 @@
 CFLAGS=		-Wall -g
 CC=		gcc
 #
-HH_FILES=	util.h names.h symtab.h types.h check.h
-CC_FILES=	util.c names.c symtab.c types.c check.c
+HH_FILES=	util.h names.h symtab.h types.h check.h three-adresss.h
+CC_FILES=	util.c names.c symtab.c types.c check.c three-adresss.c
 SOURCE=		Makefile $(CC_FILES) $(HH_FILES) tiny.y lex.l mct.sh
 #
 #

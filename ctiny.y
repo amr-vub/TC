@@ -1,7 +1,7 @@
 %{
-/*	minic.y(1.9)	17:46:21	97/12/10
+/*	tiny.y(
 *
-*	Parser demo of simple symbol table management and type checking.
+*	Tiny language parser 
 */
 #include	<stdio.h>	/* for (f)printf() */
 #include	<stdlib.h>	/* for exit() */
@@ -14,7 +14,7 @@ int		lineno	= 1;	/* number of current source line */
 extern int	yylex();	/* lexical analyzer generated from lex.l */
 extern char	*yytext;	/* last token, defined in lex.l  */
 SYM_TAB 	*scope;		/* current symbol table, initialized in lex.l */
-char		*base;		/* basename of command line argument */
+/*char		*base;		 basename of command line argument */
 
 void
 yyerror(char *s)
@@ -32,6 +32,7 @@ exit(1);
 	T_LIST*		tlist;
 	T_INFO*		type;
 	SYM_INFO*	sym;
+	SYM_ENTRY* sysentry
 	SYM_LIST*	slist;
 	}
 
@@ -41,7 +42,8 @@ exit(1);
 
 %type	<name>	NAME
 %type	<value>	NUMBER
-%type	<type>	type formal_par exp lexp
+%type	<type>	type formal_par lexp
+%type   <sysentry> exp
 %type	<tlist>	formal_pars more_parameters pars
 %type	<sym>	var
 
@@ -50,11 +52,11 @@ exit(1);
 %nonassoc	LOW  /* dummy token to suggest shift on ELSE */
 %nonassoc	ELSE /* higher than LOW */
 
-%nonassoc	EQUAL
+%nonassoc	EQUAL NEQUAL GREATER LESS
 %left		PLUS	MINUS
 %left		TIMES	DIVIDE
-%left		UMINUS	NOT /* dummy token to use as precedence marker */
-%left		DOT	LBRACK	/* C compatible precedence rules */
+%left		UMINUS	NOT LENGTH /* dummy token to use as precedence marker */
+%left		LBRACK	/* C compatible precedence rules */
 
 %%
 program		: declarations
@@ -103,14 +105,15 @@ var_declarations: var_declaration var_declarations
 		|
 		;
 
-var_declaration	: type NAME SEMICOLON	{ symtab_insert(scope,$2,$1); }
+var_declaration	: type NAME SEMICOLON	{ symtab_insert(scope,$2,$1);}
 		;
 
-type		: INT			{ $$ = types_simple(int_t); }
+type	: INT			{ $$ = types_simple(int_t); }
 		| CHAR			{ $$ = types_simple(char_t); }
-		| type TIMES		{ $$ = types_array($1); }
-		| type LBRACK exp RBRACK /* array type TODO */
-					{ $$ = types_array($3); }
+		| type LBRACK exp RBRACK /* array type */
+					{ $$ = types_array($1); } %prec LOW
+		| type LBRACK exp RBRACK LBRACK exp RBRACK /* array type */
+					{ $$ = types_array($1); }
 		;
 
 statements	: statement SEMICOLON statements
@@ -120,10 +123,10 @@ statements	: statement SEMICOLON statements
 statement	: IF LPAR exp RPAR statement 		%prec LOW
 		| IF LPAR exp RPAR statement ELSE statement	/* shift */
 		| WHILE LPAR exp RPAR statement
-		| lexp ASSIGN exp	{ check_assignment($1,$3); }
+		| lexp ASSIGN exp	{ check_assignment($1,$3->info_or_lit.val.type); }
 		| RETURN exp /* statements always in scope with function */
 			{ check_assignment(scope->function->type->info.fun.target,$2); }
-		| NAME LPAR pars RPAR		// function call
+		| NAME LPAR pars RPAR		// function call TODO:  check name in the scope??
 		| block
 		| WRITE exp
 		| READ lexp
@@ -133,10 +136,12 @@ lexp	: var			{ $$ = $1->type; }
 		| lexp LBRACK exp RBRACK{ $$ = check_array_access($1,$3); }	
 		;
 
-exp		: QCHAR { /* TODO */}
+exp		: QCHAR { $$->entry->syminf->type = types_simple(char_t);
+				  $$->entry->syminf->lit_ch_val = $1}
 		| LENGTH lexp { /* TODO */}
 		| exp LBRACK exp RBRACK	{ $$ = check_array_access($1,$3); }
-		| exp PLUS exp		{ $$ = check_arith_op(PLUS,$1,$3); }
+		| exp PLUS exp		{ $$ = check_arith_op(PLUS,$1,$3); 
+							  gen3ai(A2PLUS, $1, $3, newtemp($1->entry->sysinfo->type));}
 		| exp MINUS exp		{ $$ = check_arith_op(MINUS,$1,$3); }
 		| exp TIMES exp		{ $$ = check_arith_op(TIMES,$1,$3); }
 		| exp DIVIDE exp	{ $$ = check_arith_op(DIVIDE,$1,$3); }
@@ -149,7 +154,8 @@ exp		: QCHAR { /* TODO */}
 					{ $$ = check_arith_op(UMINUS,$2,0); }
 		| NOT exp 	{ $$ = check_arith_op(NOT,$2,0); }
 		| var			{ $$ = $1->type; }
-		| NUMBER 		{ $$ = types_simple(int_t); }
+		| NUMBER 		{ $$->entry->syminf->type = types_simple(int_t); 
+						  $$->entry->syminf->lit_int_val = $1}
 		| NAME LPAR RPAR	{ $$ = check_fun_call(scope,$1,0); }
 		| NAME LPAR pars RPAR	{ $$ = check_fun_call(scope,$1,&$3); }
 		;
@@ -164,10 +170,11 @@ var		: NAME 			{ $$ = check_symbol(scope,$1); }
 int
 main(int argc,char *argv[])
 {
+/*
 if (argc!=2) {
 	fprintf(stderr,"Usage: %s base_file_name",argv[0]);
 	exit(1);
 	}
-base = argv[1];
+base = argv[1];*/
 return yyparse();
 }

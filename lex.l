@@ -62,8 +62,8 @@ alphanum  [A-Za-z0-9_]
 ")"                     return RPAR;
 "{"                     return LBRACE;
 "}"                     return RBRACE;
-"["                     return RBRACK;
-"]"                     return LBRACK;
+"["                     return LBRACK;
+"]"                     return RBRACK;
 "="                     return ASSIGN;
 "=="					return EQUAL;
 "!="					return NEQUAL;
