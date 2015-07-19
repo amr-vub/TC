@@ -42,6 +42,7 @@ check_array_access(T_INFO* ta,T_INFO* ti)
 void
 check_arith_op(enum yytokentype token,T_INFO* t1,T_INFO* t2)
 {
+	DEBUG("Function: %s --- File: %s \n ", __func__, __FILE__);
 	if(token == UMINUS)
 		if(t1->cons==int_t)
 			return;
@@ -54,17 +55,23 @@ check_arith_op(enum yytokentype token,T_INFO* t1,T_INFO* t2)
 	//return t1;
 }
 
-T_INFO*
-check_relop(int token,T_INFO* t1,T_INFO* t2)
+void
+check_relop(enum yytokentype token,T_INFO* t1,T_INFO* t2)
 {
+	DEBUG("Function: %s --- File: %s \n ", __func__, __FILE__);
+	if(token == NOT)
+		if(t1->cons==int_t)
+			return;
+		else
+			error("type ",0,t1," does not match ",0,t2);
 	if (t1!=t2)
 		error("type ",0,t1," does not match ",0,t2);
-	return types_simple(int_t);
 }
 
 SYM_ENTRY*
 check_symbol(SYM_TAB* scope,char* name)
 {
+	//printf("check_symbol\n");
 	SYM_ENTRY* i = symtab_find(scope,name);
 
 	if (!i)

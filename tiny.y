@@ -15,7 +15,9 @@ int		lineno	= 1;	/* number of current source line */
 extern int	yylex();	/* lexical analyzer generated from lex.l */
 extern char	*yytext;	/* last token, defined in lex.l  */
 SYM_TAB 	*scope;		/* current symbol table, initialized in lex.l */
-/*char		*base;		 basename of command line argument */
+char		*base;		/* basename of command line argument */
+extern FILE * yyin;     /* the input file to parse */
+int __DEBUG__ = 0;
 
 void
 yyerror(char *s)
@@ -123,7 +125,7 @@ statements	: statement SEMICOLON statements
 		| /* empty */
 		;
 
-statement	: lexp ASSIGN exp	{ check_assignment($1->syminf->type,$3->syminf->type); 									
+statement	: lexp ASSIGN exp	{ check_assignment($1->syminf->type,$1->syminf->type); 									
 								  gen3ai(A0, NULL,$3, $1);}
 		;
 
@@ -152,23 +154,55 @@ exp		: QCHAR { $$ = symtab_insert_literal(scope, $1, types_simple(char_t));
 					{ check_arith_op(UMINUS,$2->syminf->type,0);
 					  $$ = newtemp($2->syminf->type);
 					  gen3ai(A1MINUS, NULL, $2, $$);}		
-		| var			{ $$ = $1; }
+		| exp EQUAL exp		{ check_relop(EQUAL,$1->syminf->type,$3->syminf->type); 
+							  $$ = newtemp($1->syminf->type);							  
+							  gen3ai(IFEQ, $1, $3, symtab_insert_literal(scope, (current3ai()+3), types_simple(int_t)));							  
+							  gen3ai(A0, NULL, symtab_insert_literal(scope, 0, types_simple(int_t)), $$);							  
+							  gen3ai(GOTO, NULL, NULL, symtab_insert_literal(scope, (current3ai()+2), types_simple(int_t)));
+							  gen3ai(A0, NULL, symtab_insert_literal(scope, 1, types_simple(int_t)), $$);
+							  }
+		| exp NEQUAL exp	{ check_relop(NEQUAL,$1->syminf->type,$3->syminf->type);  
+							  $$ = newtemp($1->syminf->type);							  
+							  gen3ai(IFNEQ, $1, $3, symtab_insert_literal(scope, (current3ai()+3), types_simple(int_t)));							  
+							  gen3ai(A0, NULL, symtab_insert_literal(scope, 0, types_simple(int_t)), $$);							  
+							  gen3ai(GOTO, NULL, NULL, symtab_insert_literal(scope, (current3ai()+2), types_simple(int_t)));
+							  gen3ai(A0, NULL, symtab_insert_literal(scope, 1, types_simple(int_t)), $$);}
+		| exp GREATER exp	{ check_relop(GREATER,$1->syminf->type,$3->syminf->type);  
+							  $$ = newtemp($1->syminf->type);							  
+							  gen3ai(IFGT, $1, $3, symtab_insert_literal(scope, (current3ai()+3), types_simple(int_t)));							  
+							  gen3ai(A0, NULL, symtab_insert_literal(scope, 0, types_simple(int_t)), $$);							  
+							  gen3ai(GOTO, NULL, NULL, symtab_insert_literal(scope, (current3ai()+2), types_simple(int_t)));
+							  gen3ai(A0, NULL, symtab_insert_literal(scope, 1, types_simple(int_t)), $$);}
+		| exp LESS exp		{ check_relop(LESS,$1->syminf->type,$3->syminf->type);
+							  $$ = newtemp($1->syminf->type);							  
+							  gen3ai(IFLT, $1, $3, symtab_insert_literal(scope, (current3ai()+3), types_simple(int_t)));							  
+							  gen3ai(A0, NULL, symtab_insert_literal(scope, 0, types_simple(int_t)), $$);							  
+							  gen3ai(GOTO, NULL, NULL, symtab_insert_literal(scope, (current3ai()+2), types_simple(int_t)));
+							  gen3ai(A0, NULL, symtab_insert_literal(scope, 1, types_simple(int_t)), $$);  }
+		| NOT exp 			{ check_relop(NOT,$2->syminf->type,0); 
+							  $$ = newtemp($2->syminf->type);							  
+							  gen3ai(A1NOT, NULL, $2, $$);							
+							  }							  
+		| var			{ $$ = $1;}						  
 		| NUMBER 		{ $$ = symtab_insert_literal(scope, $1, types_simple(int_t));						  
 						  $$->syminf->type = types_simple(int_t); 
 						  $$->syminf->lit_int_val = $1; }				
 		;
 
-var		: NAME 			{ $$ = check_symbol(scope,$1); }
+var		: NAME 			{ $$ = check_symbol(scope,$1);}
 %%
 
 int
 main(int argc,char *argv[])
 {
-/*
-if (argc!=2) {
-	fprintf(stderr,"Usage: %s base_file_name",argv[0]);
+/**/
+if (argc<2) {
+	fprintf(stderr,"Usage: %s base_file_name \n",argv[0]);
 	exit(1);
 	}
-base = argv[1];*/
+base = argv[1];
+yyin = fopen(base, "r");
+if(argc>2)
+	__DEBUG__ = atoi(argv[2]);
 return yyparse();
 }

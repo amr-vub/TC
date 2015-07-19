@@ -8,7 +8,8 @@
 #include "types.h"
 
 typedef enum {A2PLUS, A2TIMES, A2MINUS, A1MINUS, A2DIVIDE,
-			  A1FTOI, A1ITOF, A0, GOTO, IFEQ, PARAM,
+			  IFNEQ, IFEQ, IFGT, IFLT, GOTO, PARAM,
+			  A1NOT, A1ITOF, A0,
 			  CALL, AAC, AAS, ADDR, DEREF, DEREFA
 			  } OPCODE; /* Possible opcode values */
 
@@ -23,6 +24,8 @@ typedef struct inst_list{
 	struct inst_list *next;
 }INST_LIST;
 
+/* returns the address of the clast inserted instruction in the instruction memory */
+int current3ai(void);
 
 /* create quadruple representing instruction */
 void gen3ai(OPCODE op_code,SYM_ENTRY* arg1, SYM_ENTRY* arg2, SYM_ENTRY* result);

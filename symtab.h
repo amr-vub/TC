@@ -34,10 +34,15 @@ typedef struct symtab {
 	SYM_LIST	*list;
 	} SYM_TAB;
 
+typedef struct lit_list{
+	SYM_ENTRY *entry;
+	struct lit_list *next;
+}LITERAL_LIST;
+
 SYM_TAB*	symtab_open(SYM_TAB* enclosing_scope);
 SYM_ENTRY*	symtab_find(SYM_TAB*,char*);
 SYM_ENTRY*	symtab_insert(SYM_TAB*,char*,struct type_info*);
-SYM_ENTRY*	symtab_insert_literal(SYM_TAB*,char*,struct type_info*);
+SYM_ENTRY*	symtab_insert_literal(SYM_TAB*,int,struct type_info*);
 int		symtab_list_equal(SYM_LIST*,SYM_LIST*);
 SYM_LIST*	symtab_list_insert(SYM_LIST*,SYM_ENTRY*);
 SYM_ENTRY*	symtab_list_find(SYM_LIST*,char*);

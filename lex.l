@@ -76,9 +76,9 @@ alphanum  [A-Za-z0-9_]
 ","                     return COMMA;
 ">"                     return GREATER;
 "<"                     return LESS;
-\/\/[^/n]*				{
+\/\/[^\n]*				{
                         // Do nothing, just neglect the comments
-                        //fprintf(stdout,"comment has been detected on line %d and discarded", lineno);
+                        //fprintf(stdout,"comment has been detected on line %d and discarded \n", lineno);                        
                         }
 .                       { 
                         fprintf(stderr,

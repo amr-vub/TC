@@ -6,11 +6,6 @@ Terminals unused in grammar
    ELSE
    RETURN
    WHILE
-   EQUAL
-   NEQUAL
-   NOT
-   GREATER
-   LESS
 
 
 Grammar
@@ -68,10 +63,15 @@ Grammar
    32    | exp DIVIDE exp
    33    | LPAR exp RPAR
    34    | MINUS exp
-   35    | var
-   36    | NUMBER
+   35    | exp EQUAL exp
+   36    | exp NEQUAL exp
+   37    | exp GREATER exp
+   38    | exp LESS exp
+   39    | NOT exp
+   40    | var
+   41    | NUMBER
 
-   37 var: NAME
+   42 var: NAME
 
 
 Terminals, with rules where they appear
@@ -82,11 +82,11 @@ INT (258) 19
 CHAR (259) 20
 WRITE (260)
 READ (261)
-NAME (262) 8 13 18 37
+NAME (262) 8 13 18 42
 IF (263)
 ELSE (264)
 RETURN (265)
-NUMBER (266) 36
+NUMBER (266) 41
 LPAR (267) 8 33
 RPAR (268) 8 33
 QCHAR (269) 27
@@ -102,11 +102,11 @@ PLUS (278) 29
 MINUS (279) 30 34
 TIMES (280) 31
 DIVIDE (281) 32
-EQUAL (282)
-NEQUAL (283)
-NOT (284)
-GREATER (285)
-LESS (286)
+EQUAL (282) 35
+NEQUAL (283) 36
+NOT (284) 39
+GREATER (285) 37
+LESS (286) 38
 LENGTH (287) 28
 LOW (288)
 UMINUS (289)
@@ -151,10 +151,10 @@ statement (51)
 lexp (52)
     on left: 26, on right: 25 28
 exp (53)
-    on left: 27 28 29 30 31 32 33 34 35 36, on right: 21 22 25 29 30
-    31 32 33 34
+    on left: 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41, on right:
+    21 22 25 29 30 31 32 33 34 35 36 37 38 39
 var (54)
-    on left: 37, on right: 26 35
+    on left: 42, on right: 26 40
 
 
 state 0
@@ -279,10 +279,11 @@ state 12
     LPAR    shift, and go to state 17
     QCHAR   shift, and go to state 18
     MINUS   shift, and go to state 19
-    LENGTH  shift, and go to state 20
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
 
-    exp  go to state 21
-    var  go to state 22
+    exp  go to state 22
+    var  go to state 23
 
 
 state 13
@@ -296,21 +297,21 @@ state 14
 
     8 fun_declaration: type NAME @1 . LPAR formal_pars RPAR $@2 block
 
-    LPAR  shift, and go to state 23
+    LPAR  shift, and go to state 24
 
 
 state 15
 
-   37 var: NAME .
+   42 var: NAME .
 
-    $default  reduce using rule 37 (var)
+    $default  reduce using rule 42 (var)
 
 
 state 16
 
-   36 exp: NUMBER .
+   41 exp: NUMBER .
 
-    $default  reduce using rule 36 (exp)
+    $default  reduce using rule 41 (exp)
 
 
 state 17
@@ -322,10 +323,11 @@ state 17
     LPAR    shift, and go to state 17
     QCHAR   shift, and go to state 18
     MINUS   shift, and go to state 19
-    LENGTH  shift, and go to state 20
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
 
-    exp  go to state 24
-    var  go to state 22
+    exp  go to state 25
+    var  go to state 23
 
 
 state 18
@@ -344,23 +346,40 @@ state 19
     LPAR    shift, and go to state 17
     QCHAR   shift, and go to state 18
     MINUS   shift, and go to state 19
-    LENGTH  shift, and go to state 20
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
 
-    exp  go to state 25
-    var  go to state 22
+    exp  go to state 26
+    var  go to state 23
 
 
 state 20
+
+   39 exp: NOT . exp
+
+    NAME    shift, and go to state 15
+    NUMBER  shift, and go to state 16
+    LPAR    shift, and go to state 17
+    QCHAR   shift, and go to state 18
+    MINUS   shift, and go to state 19
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
+
+    exp  go to state 27
+    var  go to state 23
+
+
+state 21
 
    28 exp: LENGTH . lexp
 
     NAME  shift, and go to state 15
 
-    lexp  go to state 26
-    var   go to state 27
+    lexp  go to state 28
+    var   go to state 29
 
 
-state 21
+state 22
 
    21 type: type LBRACK exp . RBRACK
    22     | type LBRACK exp . RBRACK LBRACK exp RBRACK
@@ -368,22 +387,30 @@ state 21
    30    | exp . MINUS exp
    31    | exp . TIMES exp
    32    | exp . DIVIDE exp
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
 
-    RBRACK  shift, and go to state 28
-    PLUS    shift, and go to state 29
-    MINUS   shift, and go to state 30
-    TIMES   shift, and go to state 31
-    DIVIDE  shift, and go to state 32
-
-
-state 22
-
-   35 exp: var .
-
-    $default  reduce using rule 35 (exp)
+    RBRACK   shift, and go to state 30
+    PLUS     shift, and go to state 31
+    MINUS    shift, and go to state 32
+    TIMES    shift, and go to state 33
+    DIVIDE   shift, and go to state 34
+    EQUAL    shift, and go to state 35
+    NEQUAL   shift, and go to state 36
+    GREATER  shift, and go to state 37
+    LESS     shift, and go to state 38
 
 
 state 23
+
+   40 exp: var .
+
+    $default  reduce using rule 40 (exp)
+
+
+state 24
 
     8 fun_declaration: type NAME @1 LPAR . formal_pars RPAR $@2 block
 
@@ -392,25 +419,10 @@ state 23
 
     $default  reduce using rule 10 (formal_pars)
 
-    formal_pars      go to state 33
-    more_parameters  go to state 34
-    formal_par       go to state 35
-    type             go to state 36
-
-
-state 24
-
-   29 exp: exp . PLUS exp
-   30    | exp . MINUS exp
-   31    | exp . TIMES exp
-   32    | exp . DIVIDE exp
-   33    | LPAR exp . RPAR
-
-    RPAR    shift, and go to state 37
-    PLUS    shift, and go to state 29
-    MINUS   shift, and go to state 30
-    TIMES   shift, and go to state 31
-    DIVIDE  shift, and go to state 32
+    formal_pars      go to state 39
+    more_parameters  go to state 40
+    formal_par       go to state 41
+    type             go to state 42
 
 
 state 25
@@ -419,36 +431,78 @@ state 25
    30    | exp . MINUS exp
    31    | exp . TIMES exp
    32    | exp . DIVIDE exp
+   33    | LPAR exp . RPAR
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
+
+    RPAR     shift, and go to state 43
+    PLUS     shift, and go to state 31
+    MINUS    shift, and go to state 32
+    TIMES    shift, and go to state 33
+    DIVIDE   shift, and go to state 34
+    EQUAL    shift, and go to state 35
+    NEQUAL   shift, and go to state 36
+    GREATER  shift, and go to state 37
+    LESS     shift, and go to state 38
+
+
+state 26
+
+   29 exp: exp . PLUS exp
+   30    | exp . MINUS exp
+   31    | exp . TIMES exp
+   32    | exp . DIVIDE exp
    34    | MINUS exp .
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
 
     $default  reduce using rule 34 (exp)
 
 
-state 26
+state 27
+
+   29 exp: exp . PLUS exp
+   30    | exp . MINUS exp
+   31    | exp . TIMES exp
+   32    | exp . DIVIDE exp
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
+   39    | NOT exp .
+
+    $default  reduce using rule 39 (exp)
+
+
+state 28
 
    28 exp: LENGTH lexp .
 
     $default  reduce using rule 28 (exp)
 
 
-state 27
+state 29
 
    26 lexp: var .
 
     $default  reduce using rule 26 (lexp)
 
 
-state 28
+state 30
 
    21 type: type LBRACK exp RBRACK .
    22     | type LBRACK exp RBRACK . LBRACK exp RBRACK
 
-    LBRACK  shift, and go to state 38
+    LBRACK  shift, and go to state 44
 
     $default  reduce using rule 21 (type)
 
 
-state 29
+state 31
 
    29 exp: exp PLUS . exp
 
@@ -457,13 +511,14 @@ state 29
     LPAR    shift, and go to state 17
     QCHAR   shift, and go to state 18
     MINUS   shift, and go to state 19
-    LENGTH  shift, and go to state 20
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
 
-    exp  go to state 39
-    var  go to state 22
+    exp  go to state 45
+    var  go to state 23
 
 
-state 30
+state 32
 
    30 exp: exp MINUS . exp
 
@@ -472,13 +527,14 @@ state 30
     LPAR    shift, and go to state 17
     QCHAR   shift, and go to state 18
     MINUS   shift, and go to state 19
-    LENGTH  shift, and go to state 20
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
 
-    exp  go to state 40
-    var  go to state 22
+    exp  go to state 46
+    var  go to state 23
 
 
-state 31
+state 33
 
    31 exp: exp TIMES . exp
 
@@ -487,13 +543,14 @@ state 31
     LPAR    shift, and go to state 17
     QCHAR   shift, and go to state 18
     MINUS   shift, and go to state 19
-    LENGTH  shift, and go to state 20
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
 
-    exp  go to state 41
-    var  go to state 22
+    exp  go to state 47
+    var  go to state 23
 
 
-state 32
+state 34
 
    32 exp: exp DIVIDE . exp
 
@@ -502,54 +559,119 @@ state 32
     LPAR    shift, and go to state 17
     QCHAR   shift, and go to state 18
     MINUS   shift, and go to state 19
-    LENGTH  shift, and go to state 20
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
 
-    exp  go to state 42
-    var  go to state 22
+    exp  go to state 48
+    var  go to state 23
 
 
-state 33
+state 35
+
+   35 exp: exp EQUAL . exp
+
+    NAME    shift, and go to state 15
+    NUMBER  shift, and go to state 16
+    LPAR    shift, and go to state 17
+    QCHAR   shift, and go to state 18
+    MINUS   shift, and go to state 19
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
+
+    exp  go to state 49
+    var  go to state 23
+
+
+state 36
+
+   36 exp: exp NEQUAL . exp
+
+    NAME    shift, and go to state 15
+    NUMBER  shift, and go to state 16
+    LPAR    shift, and go to state 17
+    QCHAR   shift, and go to state 18
+    MINUS   shift, and go to state 19
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
+
+    exp  go to state 50
+    var  go to state 23
+
+
+state 37
+
+   37 exp: exp GREATER . exp
+
+    NAME    shift, and go to state 15
+    NUMBER  shift, and go to state 16
+    LPAR    shift, and go to state 17
+    QCHAR   shift, and go to state 18
+    MINUS   shift, and go to state 19
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
+
+    exp  go to state 51
+    var  go to state 23
+
+
+state 38
+
+   38 exp: exp LESS . exp
+
+    NAME    shift, and go to state 15
+    NUMBER  shift, and go to state 16
+    LPAR    shift, and go to state 17
+    QCHAR   shift, and go to state 18
+    MINUS   shift, and go to state 19
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
+
+    exp  go to state 52
+    var  go to state 23
+
+
+state 39
 
     8 fun_declaration: type NAME @1 LPAR formal_pars . RPAR $@2 block
 
-    RPAR  shift, and go to state 43
+    RPAR  shift, and go to state 53
 
 
-state 34
+state 40
 
     9 formal_pars: more_parameters .
 
     $default  reduce using rule 9 (formal_pars)
 
 
-state 35
+state 41
 
    11 more_parameters: formal_par . COMMA more_parameters
    12                | formal_par .
 
-    COMMA  shift, and go to state 44
+    COMMA  shift, and go to state 54
 
     $default  reduce using rule 12 (more_parameters)
 
 
-state 36
+state 42
 
    13 formal_par: type . NAME
    21 type: type . LBRACK exp RBRACK
    22     | type . LBRACK exp RBRACK LBRACK exp RBRACK
 
-    NAME    shift, and go to state 45
+    NAME    shift, and go to state 55
     LBRACK  shift, and go to state 12
 
 
-state 37
+state 43
 
    33 exp: LPAR exp RPAR .
 
     $default  reduce using rule 33 (exp)
 
 
-state 38
+state 44
 
    22 type: type LBRACK exp RBRACK LBRACK . exp RBRACK
 
@@ -558,145 +680,270 @@ state 38
     LPAR    shift, and go to state 17
     QCHAR   shift, and go to state 18
     MINUS   shift, and go to state 19
-    LENGTH  shift, and go to state 20
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
 
-    exp  go to state 46
-    var  go to state 22
+    exp  go to state 56
+    var  go to state 23
 
 
-state 39
+state 45
 
    29 exp: exp . PLUS exp
    29    | exp PLUS exp .
    30    | exp . MINUS exp
    31    | exp . TIMES exp
    32    | exp . DIVIDE exp
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
 
-    TIMES   shift, and go to state 31
-    DIVIDE  shift, and go to state 32
+    TIMES   shift, and go to state 33
+    DIVIDE  shift, and go to state 34
 
     $default  reduce using rule 29 (exp)
 
 
-state 40
+state 46
 
    29 exp: exp . PLUS exp
    30    | exp . MINUS exp
    30    | exp MINUS exp .
    31    | exp . TIMES exp
    32    | exp . DIVIDE exp
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
 
-    TIMES   shift, and go to state 31
-    DIVIDE  shift, and go to state 32
+    TIMES   shift, and go to state 33
+    DIVIDE  shift, and go to state 34
 
     $default  reduce using rule 30 (exp)
 
 
-state 41
+state 47
 
    29 exp: exp . PLUS exp
    30    | exp . MINUS exp
    31    | exp . TIMES exp
    31    | exp TIMES exp .
    32    | exp . DIVIDE exp
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
 
     $default  reduce using rule 31 (exp)
 
 
-state 42
+state 48
 
    29 exp: exp . PLUS exp
    30    | exp . MINUS exp
    31    | exp . TIMES exp
    32    | exp . DIVIDE exp
    32    | exp DIVIDE exp .
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
 
     $default  reduce using rule 32 (exp)
 
 
-state 43
+state 49
+
+   29 exp: exp . PLUS exp
+   30    | exp . MINUS exp
+   31    | exp . TIMES exp
+   32    | exp . DIVIDE exp
+   35    | exp . EQUAL exp
+   35    | exp EQUAL exp .
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
+
+    PLUS    shift, and go to state 31
+    MINUS   shift, and go to state 32
+    TIMES   shift, and go to state 33
+    DIVIDE  shift, and go to state 34
+
+    EQUAL    error (nonassociative)
+    NEQUAL   error (nonassociative)
+    GREATER  error (nonassociative)
+    LESS     error (nonassociative)
+
+    $default  reduce using rule 35 (exp)
+
+
+state 50
+
+   29 exp: exp . PLUS exp
+   30    | exp . MINUS exp
+   31    | exp . TIMES exp
+   32    | exp . DIVIDE exp
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   36    | exp NEQUAL exp .
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
+
+    PLUS    shift, and go to state 31
+    MINUS   shift, and go to state 32
+    TIMES   shift, and go to state 33
+    DIVIDE  shift, and go to state 34
+
+    EQUAL    error (nonassociative)
+    NEQUAL   error (nonassociative)
+    GREATER  error (nonassociative)
+    LESS     error (nonassociative)
+
+    $default  reduce using rule 36 (exp)
+
+
+state 51
+
+   29 exp: exp . PLUS exp
+   30    | exp . MINUS exp
+   31    | exp . TIMES exp
+   32    | exp . DIVIDE exp
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   37    | exp GREATER exp .
+   38    | exp . LESS exp
+
+    PLUS    shift, and go to state 31
+    MINUS   shift, and go to state 32
+    TIMES   shift, and go to state 33
+    DIVIDE  shift, and go to state 34
+
+    EQUAL    error (nonassociative)
+    NEQUAL   error (nonassociative)
+    GREATER  error (nonassociative)
+    LESS     error (nonassociative)
+
+    $default  reduce using rule 37 (exp)
+
+
+state 52
+
+   29 exp: exp . PLUS exp
+   30    | exp . MINUS exp
+   31    | exp . TIMES exp
+   32    | exp . DIVIDE exp
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
+   38    | exp LESS exp .
+
+    PLUS    shift, and go to state 31
+    MINUS   shift, and go to state 32
+    TIMES   shift, and go to state 33
+    DIVIDE  shift, and go to state 34
+
+    EQUAL    error (nonassociative)
+    NEQUAL   error (nonassociative)
+    GREATER  error (nonassociative)
+    LESS     error (nonassociative)
+
+    $default  reduce using rule 38 (exp)
+
+
+state 53
 
     8 fun_declaration: type NAME @1 LPAR formal_pars RPAR . $@2 block
 
     $default  reduce using rule 7 ($@2)
 
-    $@2  go to state 47
+    $@2  go to state 57
 
 
-state 44
+state 54
 
    11 more_parameters: formal_par COMMA . more_parameters
 
     INT   shift, and go to state 1
     CHAR  shift, and go to state 2
 
-    more_parameters  go to state 48
-    formal_par       go to state 35
-    type             go to state 36
+    more_parameters  go to state 58
+    formal_par       go to state 41
+    type             go to state 42
 
 
-state 45
+state 55
 
    13 formal_par: type NAME .
 
     $default  reduce using rule 13 (formal_par)
 
 
-state 46
+state 56
 
    22 type: type LBRACK exp RBRACK LBRACK exp . RBRACK
    29 exp: exp . PLUS exp
    30    | exp . MINUS exp
    31    | exp . TIMES exp
    32    | exp . DIVIDE exp
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
 
-    RBRACK  shift, and go to state 49
-    PLUS    shift, and go to state 29
-    MINUS   shift, and go to state 30
-    TIMES   shift, and go to state 31
-    DIVIDE  shift, and go to state 32
+    RBRACK   shift, and go to state 59
+    PLUS     shift, and go to state 31
+    MINUS    shift, and go to state 32
+    TIMES    shift, and go to state 33
+    DIVIDE   shift, and go to state 34
+    EQUAL    shift, and go to state 35
+    NEQUAL   shift, and go to state 36
+    GREATER  shift, and go to state 37
+    LESS     shift, and go to state 38
 
 
-state 47
+state 57
 
     8 fun_declaration: type NAME @1 LPAR formal_pars RPAR $@2 . block
 
-    LBRACE  shift, and go to state 50
+    LBRACE  shift, and go to state 60
 
-    block  go to state 51
+    block  go to state 61
 
 
-state 48
+state 58
 
    11 more_parameters: formal_par COMMA more_parameters .
 
     $default  reduce using rule 11 (more_parameters)
 
 
-state 49
+state 59
 
    22 type: type LBRACK exp RBRACK LBRACK exp RBRACK .
 
     $default  reduce using rule 22 (type)
 
 
-state 50
+state 60
 
    15 block: LBRACE . $@3 var_declarations statements RBRACE
 
     $default  reduce using rule 14 ($@3)
 
-    $@3  go to state 52
+    $@3  go to state 62
 
 
-state 51
+state 61
 
     8 fun_declaration: type NAME @1 LPAR formal_pars RPAR $@2 block .
 
     $default  reduce using rule 8 (fun_declaration)
 
 
-state 52
+state 62
 
    15 block: LBRACE $@3 . var_declarations statements RBRACE
 
@@ -705,12 +952,12 @@ state 52
 
     $default  reduce using rule 17 (var_declarations)
 
-    var_declarations  go to state 53
-    var_declaration   go to state 54
-    type              go to state 55
+    var_declarations  go to state 63
+    var_declaration   go to state 64
+    type              go to state 65
 
 
-state 53
+state 63
 
    15 block: LBRACE $@3 var_declarations . statements RBRACE
 
@@ -718,13 +965,13 @@ state 53
 
     $default  reduce using rule 24 (statements)
 
-    statements  go to state 56
-    statement   go to state 57
-    lexp        go to state 58
-    var         go to state 27
+    statements  go to state 66
+    statement   go to state 67
+    lexp        go to state 68
+    var         go to state 29
 
 
-state 54
+state 64
 
    16 var_declarations: var_declaration . var_declarations
 
@@ -733,64 +980,64 @@ state 54
 
     $default  reduce using rule 17 (var_declarations)
 
-    var_declarations  go to state 59
-    var_declaration   go to state 54
-    type              go to state 55
+    var_declarations  go to state 69
+    var_declaration   go to state 64
+    type              go to state 65
 
 
-state 55
+state 65
 
    18 var_declaration: type . NAME SEMICOLON
    21 type: type . LBRACK exp RBRACK
    22     | type . LBRACK exp RBRACK LBRACK exp RBRACK
 
-    NAME    shift, and go to state 60
+    NAME    shift, and go to state 70
     LBRACK  shift, and go to state 12
 
 
-state 56
+state 66
 
    15 block: LBRACE $@3 var_declarations statements . RBRACE
 
-    RBRACE  shift, and go to state 61
+    RBRACE  shift, and go to state 71
 
 
-state 57
+state 67
 
    23 statements: statement . SEMICOLON statements
 
-    SEMICOLON  shift, and go to state 62
+    SEMICOLON  shift, and go to state 72
 
 
-state 58
+state 68
 
    25 statement: lexp . ASSIGN exp
 
-    ASSIGN  shift, and go to state 63
+    ASSIGN  shift, and go to state 73
 
 
-state 59
+state 69
 
    16 var_declarations: var_declaration var_declarations .
 
     $default  reduce using rule 16 (var_declarations)
 
 
-state 60
+state 70
 
    18 var_declaration: type NAME . SEMICOLON
 
     SEMICOLON  shift, and go to state 13
 
 
-state 61
+state 71
 
    15 block: LBRACE $@3 var_declarations statements RBRACE .
 
     $default  reduce using rule 15 (block)
 
 
-state 62
+state 72
 
    23 statements: statement SEMICOLON . statements
 
@@ -798,13 +1045,13 @@ state 62
 
     $default  reduce using rule 24 (statements)
 
-    statements  go to state 64
-    statement   go to state 57
-    lexp        go to state 58
-    var         go to state 27
+    statements  go to state 74
+    statement   go to state 67
+    lexp        go to state 68
+    var         go to state 29
 
 
-state 63
+state 73
 
    25 statement: lexp ASSIGN . exp
 
@@ -813,30 +1060,39 @@ state 63
     LPAR    shift, and go to state 17
     QCHAR   shift, and go to state 18
     MINUS   shift, and go to state 19
-    LENGTH  shift, and go to state 20
+    NOT     shift, and go to state 20
+    LENGTH  shift, and go to state 21
 
-    exp  go to state 65
-    var  go to state 22
+    exp  go to state 75
+    var  go to state 23
 
 
-state 64
+state 74
 
    23 statements: statement SEMICOLON statements .
 
     $default  reduce using rule 23 (statements)
 
 
-state 65
+state 75
 
    25 statement: lexp ASSIGN exp .
    29 exp: exp . PLUS exp
    30    | exp . MINUS exp
    31    | exp . TIMES exp
    32    | exp . DIVIDE exp
+   35    | exp . EQUAL exp
+   36    | exp . NEQUAL exp
+   37    | exp . GREATER exp
+   38    | exp . LESS exp
 
-    PLUS    shift, and go to state 29
-    MINUS   shift, and go to state 30
-    TIMES   shift, and go to state 31
-    DIVIDE  shift, and go to state 32
+    PLUS     shift, and go to state 31
+    MINUS    shift, and go to state 32
+    TIMES    shift, and go to state 33
+    DIVIDE   shift, and go to state 34
+    EQUAL    shift, and go to state 35
+    NEQUAL   shift, and go to state 36
+    GREATER  shift, and go to state 37
+    LESS     shift, and go to state 38
 
     $default  reduce using rule 25 (statement)
