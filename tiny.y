@@ -38,6 +38,7 @@ exit(1);
 	SYM_INFO*	sym;
 	SYM_ENTRY* sysentry;
 	SYM_LIST*	slist;
+	LOC_LIST* loc_lst;
 	}
 
 %token	INT CHAR WRITE READ NAME IF ELSE RETURN NUMBER LPAR RPAR QCHAR
@@ -45,7 +46,8 @@ exit(1);
 %token	PLUS MINUS TIMES DIVIDE EQUAL NEQUAL NOT GREATER LESS LENGTH
 
 %type	<name>	NAME
-%type	<value>	NUMBER
+%type	<value>	NUMBER marker
+%type   <loc_lst> goend block statement statements
 %type   <ch>    QCHAR
 %type	<type>	type formal_par
 %type   <sysentry> exp var lexp
@@ -103,7 +105,8 @@ formal_par	: type NAME {
 
 block		: LBRACE 		{  scope = symtab_open(scope); }
 		  var_declarations statements RBRACE
-					{ scope = scope->parent; /* close scope */}
+					{ scope = scope->parent; /* close scope */
+					  $$ = $4;}
 		;
 
 var_declarations: var_declaration var_declarations
@@ -121,13 +124,42 @@ type	: INT			{ $$ = types_simple(int_t); }
 					{ $$ = types_array($1); }
 		;
 
-statements	: statement SEMICOLON statements
+marker : /* empty, just used for backpatching*/
+			{$$ = current3ai()+1;}
+			;
+goend	:	/* empty */
+			{$$ = makelist(current3ai()+1);
+			 gen3ai(GOTO, NULL, NULL, NULL); /* goto end,backpatch later */
+			 }
+			 ;	
+		
+statements	: statement SEMICOLON marker statements 
+				{ backpatch($1 , symtab_insert_literal(scope, $3, types_simple(int_t)));
+							  $$ = $4;}
 		| /* empty */
-		;
+		;		
 
 statement	: lexp ASSIGN exp	{ check_assignment($1->syminf->type,$1->syminf->type); 									
-								  gen3ai(A0, NULL,$3, $1);}
-		;
+								  gen3ai(A0, NULL,$3, $1);
+								  $$ = makelist(-1); /* create an empty list of locations */}					
+		    | IF LPAR exp RPAR marker statement goend ELSE marker statement	/* shift */
+		    	{backpatch($3->syminf->truelist,symtab_insert_literal(scope, $5, types_simple(int_t)));
+		    	 backpatch($3->syminf->falselist,symtab_insert_literal(scope, $9, types_simple(int_t)));
+		    	 $$ = merge($6, $7);
+		    	 $$ = merge($$, $10);
+		    	 }
+		    | IF LPAR exp RPAR marker statement %prec LOW
+				{backpatch($3->syminf->truelist, symtab_insert_literal(scope, $5, types_simple(int_t)));
+				 $$ = merge($3->syminf->falselist, $6);} 
+		    | WHILE LPAR marker exp RPAR marker statement
+		    	{backpatch($4->syminf->truelist,symtab_insert_literal(scope, $6, types_simple(int_t)));
+		    	 backpatch($7,symtab_insert_literal(scope, $3, types_simple(int_t)));
+		    	 $$ = $4->syminf->falselist;
+		    	 gen3ai(GOTO, 0, 0, symtab_insert_literal(scope, $3, types_simple(int_t)));		    	 
+		    	}		    
+		    | block {$$ = $1;}
+		    ;		
+						
 
 lexp	: var			{ $$ = $1;}
 		;
@@ -155,30 +187,33 @@ exp		: QCHAR { $$ = symtab_insert_literal(scope, $1, types_simple(char_t));
 					  $$ = newtemp($2->syminf->type);
 					  gen3ai(A1MINUS, NULL, $2, $$);}		
 		| exp EQUAL exp		{ check_relop(EQUAL,$1->syminf->type,$3->syminf->type); 
-							  $$ = newtemp($1->syminf->type);							  
-							  gen3ai(IFEQ, $1, $3, symtab_insert_literal(scope, (current3ai()+3), types_simple(int_t)));							  
-							  gen3ai(A0, NULL, symtab_insert_literal(scope, 0, types_simple(int_t)), $$);							  
-							  gen3ai(GOTO, NULL, NULL, symtab_insert_literal(scope, (current3ai()+2), types_simple(int_t)));
-							  gen3ai(A0, NULL, symtab_insert_literal(scope, 1, types_simple(int_t)), $$);
+							  $$ = newtemp($1->syminf->type);
+							  $$->syminf->truelist = makelist(current3ai()+1);							  							 
+							  gen3ai(IFEQ, $1, $3, NULL); /* true, backpatch later */							  
+							  $$->syminf->falselist = makelist(current3ai()+2);							  							  							 
+							  gen3ai(GOTO, NULL, NULL, NULL);							  
 							  }
 		| exp NEQUAL exp	{ check_relop(NEQUAL,$1->syminf->type,$3->syminf->type);  
 							  $$ = newtemp($1->syminf->type);							  
-							  gen3ai(IFNEQ, $1, $3, symtab_insert_literal(scope, (current3ai()+3), types_simple(int_t)));							  
-							  gen3ai(A0, NULL, symtab_insert_literal(scope, 0, types_simple(int_t)), $$);							  
-							  gen3ai(GOTO, NULL, NULL, symtab_insert_literal(scope, (current3ai()+2), types_simple(int_t)));
-							  gen3ai(A0, NULL, symtab_insert_literal(scope, 1, types_simple(int_t)), $$);}
+							  $$->syminf->truelist = makelist(current3ai()+1);							  							 
+							  gen3ai(IFNEQ, $1, $3, NULL); /* true, backpatch later */							  
+							  $$->syminf->falselist = makelist(current3ai()+2);							  							  							 
+							  gen3ai(GOTO, NULL, NULL, NULL);
+							  }
 		| exp GREATER exp	{ check_relop(GREATER,$1->syminf->type,$3->syminf->type);  
 							  $$ = newtemp($1->syminf->type);							  
-							  gen3ai(IFGT, $1, $3, symtab_insert_literal(scope, (current3ai()+3), types_simple(int_t)));							  
-							  gen3ai(A0, NULL, symtab_insert_literal(scope, 0, types_simple(int_t)), $$);							  
-							  gen3ai(GOTO, NULL, NULL, symtab_insert_literal(scope, (current3ai()+2), types_simple(int_t)));
-							  gen3ai(A0, NULL, symtab_insert_literal(scope, 1, types_simple(int_t)), $$);}
+							  $$->syminf->truelist = makelist(current3ai()+1);							  							 
+							  gen3ai(IFGT, $1, $3, NULL); /* true, backpatch later */							  
+							  $$->syminf->falselist = makelist(current3ai()+2);							  							  							 
+							  gen3ai(GOTO, NULL, NULL, NULL);
+							  }
 		| exp LESS exp		{ check_relop(LESS,$1->syminf->type,$3->syminf->type);
 							  $$ = newtemp($1->syminf->type);							  
-							  gen3ai(IFLT, $1, $3, symtab_insert_literal(scope, (current3ai()+3), types_simple(int_t)));							  
-							  gen3ai(A0, NULL, symtab_insert_literal(scope, 0, types_simple(int_t)), $$);							  
-							  gen3ai(GOTO, NULL, NULL, symtab_insert_literal(scope, (current3ai()+2), types_simple(int_t)));
-							  gen3ai(A0, NULL, symtab_insert_literal(scope, 1, types_simple(int_t)), $$);  }
+							  $$->syminf->truelist = makelist(current3ai()+1);							  							 
+							  gen3ai(IFLT, $1, $3, NULL); /* true, backpatch later */							  
+							  $$->syminf->falselist = makelist(current3ai()+2);							  							  							 
+							  gen3ai(GOTO, NULL, NULL, NULL);
+							  }
 		| NOT exp 			{ check_relop(NOT,$2->syminf->type,0); 
 							  $$ = newtemp($2->syminf->type);							  
 							  gen3ai(A1NOT, NULL, $2, $$);							

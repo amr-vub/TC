@@ -8,6 +8,8 @@
 #include	<stdlib.h>	/* for malloc() and friends */
 #include	<stdio.h>	/* for fprintf() and friends */
 
+typedef struct indiceslist LOC_LIST;
+
 typedef struct syminfo {
 	union{
 		char			*name;
@@ -15,6 +17,9 @@ typedef struct syminfo {
 		char 	   lit_ch_val;
 	};
 	struct type_info	*type;
+	LOC_LIST 		    *truelist;
+	LOC_LIST 		    *falselist;
+	LOC_LIST 		    *next;
 	} SYM_INFO;
 
 /* System table will act as a system table and a literal table at the same time */

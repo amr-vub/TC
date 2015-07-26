@@ -12,7 +12,8 @@ int gg(){
 	a = !b;
 	// boolean exp
 	a = !c;
-	a = b<c;
-	a = b>c;
-	a = b!=4;
+	if(a>c)
+		a = b + c;
+	while(b!=c)
+		a = b / c;
 }

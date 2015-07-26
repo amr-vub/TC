@@ -6,6 +6,7 @@
 #include	"util.h"
 #include	"symtab.h"
 #include	"types.h"
+#include	"backpatching.h"
 
 static LITERAL_LIST *literals = 0;
 

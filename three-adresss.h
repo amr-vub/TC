@@ -19,10 +19,15 @@ typedef struct {
 	SYM_ENTRY*	result;
 } INSTRUCTION;
 
+// Global instruction memory
+INSTRUCTION* inst_memory[1024];
+
+/*
 typedef struct inst_list{
 	INSTRUCTION *inst;
 	struct inst_list *next;
 }INST_LIST;
+*/
 
 /* returns the address of the clast inserted instruction in the instruction memory */
 int current3ai(void);

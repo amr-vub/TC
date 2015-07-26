@@ -7,7 +7,6 @@
 #include	<string.h>
 #include    "trace.h"
 
-static INST_LIST *inst_memory=0;
 static char countTemp[2] = "0"; /* keeps track of last used temp var number */
 static char temp[2] = "t";
 static int current3aiVar=0;
@@ -54,7 +53,8 @@ static void printIf(char* op, SYM_ENTRY* arg1, SYM_ENTRY* arg2, SYM_ENTRY* resul
 	printf(" %s ",op);
 	printarg(arg2);
 	printf(" GOTO ");
-	printf("%d\n", result->syminf->lit_int_val);
+	printf("-- \n");
+	//printf("%d\n", result->syminf->lit_int_val);
 	/* Statement two: E.value ‘=’ ‘0’*/
 }
 
@@ -65,8 +65,8 @@ static void printGOTO(char *binop, SYM_ENTRY* arg1, SYM_ENTRY* arg2, SYM_ENTRY* 
 	 * produce (E.value ‘=’ ‘0’)
 	 * produce (‘goto’ current3ai + 2)
 	 * produce (E.value ‘=’ ‘1’) */
-	printf(" GOTO ");
-	printf("%d\n", result->syminf->lit_int_val);
+	printf(" GOTO -- \n");
+	//printf("%d\n", result->syminf->lit_int_val);
 
 }
 
@@ -151,24 +151,25 @@ SYM_ENTRY* newtemp(T_INFO *i)
 /* Insert an instruction in the instruction memory*/
 static void instruction_memory_insert(INSTRUCTION *inst)
 {
-	/* First time to insert an instruction */
-	if(!inst_memory)
-	{
-		inst_memory = fmalloc(sizeof(INST_LIST));
-		inst_memory->inst = inst;
-		inst_memory->next = 0;
-		return;
-	}
-	/* Instruction memory already exist */
-	/* Insert the instruction at the end of the list*/
-	INST_LIST *inst_memory_copy = inst_memory;
-	while(inst_memory_copy->next)
-		inst_memory_copy = inst_memory_copy->next;
-	/* now inst_memory_copy points to the end of the instruction memory*/
-	INST_LIST *new_inst = fmalloc(sizeof(INST_LIST));
-	new_inst->inst = inst;
-	new_inst->next = 0;
-	inst_memory_copy->next = new_inst;
+	inst_memory[current3aiVar] = inst;
+//	/* First time to insert an instruction */
+//	if(!inst_memory)
+//	{
+//		inst_memory = fmalloc(sizeof(INST_LIST));
+//		inst_memory->inst = inst;
+//		inst_memory->next = 0;
+//		return;
+//	}
+//	/* Instruction memory already exist */
+//	/* Insert the instruction at the end of the list*/
+//	INST_LIST *inst_memory_copy = inst_memory;
+//	while(inst_memory_copy->next)
+//		inst_memory_copy = inst_memory_copy->next;
+//	/* now inst_memory_copy points to the end of the instruction memory*/
+//	INST_LIST *new_inst = fmalloc(sizeof(INST_LIST));
+//	new_inst->inst = inst;
+//	new_inst->next = 0;
+//	inst_memory_copy->next = new_inst;
 
 	current3aiVar++;
 }
