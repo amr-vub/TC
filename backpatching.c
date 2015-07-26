@@ -53,10 +53,12 @@ void backpatch(LOC_LIST* p, SYM_ENTRY* i)
 	// loop through all indecies in p and insert i as a result address
 	if(p)
 	{
+		//printf("SECOND Function: %s --- File: %s \n ", __func__, __FILE__);
 		LOC_LIST* tmp = p;
-		while(tmp->next)
+		while(tmp)
 		{
 			inst_memory[tmp->location]->result = i;
+			//printf("location %d --> %d \n", tmp->location, i->syminf->lit_int_val);
 			tmp = tmp->next;
 		}
 	}

@@ -65,8 +65,11 @@ static void printGOTO(char *binop, SYM_ENTRY* arg1, SYM_ENTRY* arg2, SYM_ENTRY* 
 	 * produce (E.value ‘=’ ‘0’)
 	 * produce (‘goto’ current3ai + 2)
 	 * produce (E.value ‘=’ ‘1’) */
-	printf(" GOTO -- \n");
-	//printf("%d\n", result->syminf->lit_int_val);
+	printf(" GOTO ");
+	if(!result)
+		printf("-- \n");
+	else
+		printf("%d\n", result->syminf->lit_int_val);
 
 }
 
@@ -95,6 +98,7 @@ void gen3ai(OPCODE op_code,SYM_ENTRY* arg1, SYM_ENTRY* arg2, SYM_ENTRY* result)
 	inst->result = result;
 	// Then put it in the instruction memory
 	instruction_memory_insert(inst);
+	printf("%d. ", current3ai()); /* print the index */
 	switch(op_code)
 	{
 	case A2PLUS:

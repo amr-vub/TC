@@ -190,28 +190,28 @@ exp		: QCHAR { $$ = symtab_insert_literal(scope, $1, types_simple(char_t));
 							  $$ = newtemp($1->syminf->type);
 							  $$->syminf->truelist = makelist(current3ai()+1);							  							 
 							  gen3ai(IFEQ, $1, $3, NULL); /* true, backpatch later */							  
-							  $$->syminf->falselist = makelist(current3ai()+2);							  							  							 
+							  $$->syminf->falselist = makelist(current3ai()+1);							  							  							 
 							  gen3ai(GOTO, NULL, NULL, NULL);							  
 							  }
 		| exp NEQUAL exp	{ check_relop(NEQUAL,$1->syminf->type,$3->syminf->type);  
 							  $$ = newtemp($1->syminf->type);							  
 							  $$->syminf->truelist = makelist(current3ai()+1);							  							 
 							  gen3ai(IFNEQ, $1, $3, NULL); /* true, backpatch later */							  
-							  $$->syminf->falselist = makelist(current3ai()+2);							  							  							 
+							  $$->syminf->falselist = makelist(current3ai()+1);							  							  							 
 							  gen3ai(GOTO, NULL, NULL, NULL);
 							  }
 		| exp GREATER exp	{ check_relop(GREATER,$1->syminf->type,$3->syminf->type);  
 							  $$ = newtemp($1->syminf->type);							  
 							  $$->syminf->truelist = makelist(current3ai()+1);							  							 
 							  gen3ai(IFGT, $1, $3, NULL); /* true, backpatch later */							  
-							  $$->syminf->falselist = makelist(current3ai()+2);							  							  							 
+							  $$->syminf->falselist = makelist(current3ai()+1);							  							  							 
 							  gen3ai(GOTO, NULL, NULL, NULL);
 							  }
 		| exp LESS exp		{ check_relop(LESS,$1->syminf->type,$3->syminf->type);
 							  $$ = newtemp($1->syminf->type);							  
 							  $$->syminf->truelist = makelist(current3ai()+1);							  							 
 							  gen3ai(IFLT, $1, $3, NULL); /* true, backpatch later */							  
-							  $$->syminf->falselist = makelist(current3ai()+2);							  							  							 
+							  $$->syminf->falselist = makelist(current3ai()+1);							  							  							 
 							  gen3ai(GOTO, NULL, NULL, NULL);
 							  }
 		| NOT exp 			{ check_relop(NOT,$2->syminf->type,0); 
