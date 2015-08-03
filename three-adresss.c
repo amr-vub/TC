@@ -14,7 +14,7 @@ static int current3aiVar=0;
 static void printarg(SYM_ENTRY* arg)
 {
 	//printf("liertal: %d \n", arg->literal);
-	if(arg->literal)
+	if(arg->literal == 1)
 	{
 		//printf("	if(arg->literal)");
 		switch(arg->syminf->type->cons)
@@ -29,8 +29,11 @@ static void printarg(SYM_ENTRY* arg)
 	}
 	else
 	{
-		//printf("NAME ---- \N");
-		printf("%s ", arg->syminf->name);
+		//printf("NAME ---- \n");
+		if(arg)
+			printf("%s ", arg->syminf->name);
+		else
+			printf("printarg(..)--> ERROR Result place is NULL! \n");
 	}
 }
 
@@ -71,6 +74,19 @@ static void printGOTO(char *binop, SYM_ENTRY* arg1, SYM_ENTRY* arg2, SYM_ENTRY* 
 	else
 		printf("%d\n", result->syminf->lit_int_val);
 
+}
+
+static void printParam(char* op, SYM_ENTRY* result)
+{
+	//DEBUG("Function: %s --- File: %s \n ", __func__, __FILE__);
+	printf("%s ",op);
+	if(result)
+	{
+		printarg(result);
+		printf(" \n");
+	}
+	else
+		printf(" \n");
 }
 
 /* returns the address of the last inserted instruction in the instruction memory */
@@ -133,6 +149,12 @@ void gen3ai(OPCODE op_code,SYM_ENTRY* arg1, SYM_ENTRY* arg2, SYM_ENTRY* result)
 		break;
 	case GOTO:
 		printGOTO("GOTO",arg1, arg2, result);
+		break;
+	case PARAM:
+		printParam("PARAM",result);
+		break;
+	case CALL:
+		printParam("CALL",result);
 		break;
 	}
 }

@@ -6,10 +6,11 @@
 #include	<stdio.h>	/* for (f)printf() */
 #include	<stdlib.h>	/* for exit() */
 
-#include	"symtab.h"
+/*#include	"symtab.h"*/
+#include    "proc.h"
 #include	"types.h"
 #include	"check.h"
-#include    "three-adresss.h"
+#include    "three-adresss.h" 
 
 int		lineno	= 1;	/* number of current source line */
 extern int	yylex();	/* lexical analyzer generated from lex.l */
@@ -39,6 +40,7 @@ exit(1);
 	SYM_ENTRY* sysentry;
 	SYM_LIST*	slist;
 	LOC_LIST* loc_lst;
+	PLACE_LIST* plc_lst;
 	}
 
 %token	INT CHAR WRITE READ NAME IF ELSE RETURN NUMBER LPAR RPAR QCHAR
@@ -51,6 +53,7 @@ exit(1);
 %type   <ch>    QCHAR
 %type	<type>	type formal_par
 %type   <sysentry> exp var lexp
+%type   <plc_lst> pars
 %type	<tlist>	formal_pars more_parameters
 /*%type	<sym>	var*/
 
@@ -157,6 +160,7 @@ statement	: lexp ASSIGN exp	{ check_assignment($1->syminf->type,$1->syminf->type
 		    	 $$ = $4->syminf->falselist;
 		    	 gen3ai(GOTO, 0, 0, symtab_insert_literal(scope, $3, types_simple(int_t)));		    	 
 		    	}		    
+		    | exp	{ $$ = makelist(-1);}	// function call TODO:  check name in the scope??		    
 		    | block {$$ = $1;}
 		    ;		
 						
@@ -222,6 +226,27 @@ exp		: QCHAR { $$ = symtab_insert_literal(scope, $1, types_simple(char_t));
 		| NUMBER 		{ $$ = symtab_insert_literal(scope, $1, types_simple(int_t));						  
 						  $$->syminf->type = types_simple(int_t); 
 						  $$->syminf->lit_int_val = $1; }				
+		| NAME LPAR RPAR	{ //check_fun_call(scope,$1,0); 
+							  gen3ai(CALL,0,0,check_symbol(scope,$1));}
+		| NAME LPAR pars RPAR	{   
+									//check_fun_call(scope,$1,&$3); 
+									PLACE_LIST* c = $3;
+									int n = 0; /* number of arguments */																	
+									while (c) {									
+										++n;									
+										gen3ai(PARAM,0,0,c->arg);																			
+										c = c->next;									
+									}									
+									gen3ai(CALL,0,n,check_symbol(scope,$1));																		
+								}
+		;
+
+pars	: exp 				{   
+								$$ = place_list_create($1);		
+ 							}
+		| exp COMMA pars	{ 
+								$$ = place_list_append(place_list_create($1),$3);
+		 					}
 		;
 
 var		: NAME 			{ $$ = check_symbol(scope,$1);}

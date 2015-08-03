@@ -1,6 +1,9 @@
 int a;
 int b;
 int c;
+int ff()
+{
+}
 int gg(){
 	// arith exp
 	a = b + c;
@@ -10,6 +13,8 @@ int gg(){
 	a = b * c;
 	a = b / c;
 	a = !b;
+	//fun call
+	ff();
 	// boolean exp
 	a = !c;
 	if(a>c)

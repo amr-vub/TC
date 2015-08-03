@@ -7,6 +7,7 @@
 
 #include	<stdlib.h>	/* for malloc() and friends */
 #include	<stdio.h>	/* for fprintf() and friends */
+//#include	"proc.h"
 
 typedef struct indiceslist LOC_LIST;
 

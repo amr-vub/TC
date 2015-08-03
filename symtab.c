@@ -38,6 +38,7 @@ SYM_ENTRY*
 symtab_insert(SYM_TAB *st,char *name,struct type_info* t)
 {
 	DEBUG("Function: %s --- File: %s \n ", __func__, __FILE__);
+	//printf("%s \n", name);
 	SYM_INFO* i	= symtab_info_new(name,t);
 	SYM_ENTRY *e = symtab_entry_new(i,0);
 	st->list	= symtab_list_insert(st->list,e);

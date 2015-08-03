@@ -5,8 +5,8 @@
 *
 *	Semantic checks.
 */
+#include	"proc.h"
 #include	"types.h"
-#include	"symtab.h"
 #include	"tiny.tab.h"		/* for tokens */
 
 void		check_assignment(T_INFO*,T_INFO*);

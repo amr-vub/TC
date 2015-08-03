@@ -6,8 +6,9 @@
 #include <string.h> /* for strcmp, strdup & friends */
 #include <stdlib.h> /* for atoi() */
 
-#include	"symtab.h"	/* symbol table management */
-#include	"types.h"	/* symbol table management */
+/*#include	"symtab.h"	 symbol table management */
+#include	"proc.h"
+#include	"types.h"
 #include	"tiny.tab.h"	/* token type definitions from .y file */
 #include	"names.h"	/* string pool management */
 
